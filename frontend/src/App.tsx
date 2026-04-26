@@ -31,6 +31,7 @@ function App() {
     setMessage('')
 
     try {
+      // Rails has_secure_password validates password_confirmation on registration.
       if (mode === 'register' && password !== passwordConfirmation) {
         throw new Error("Password confirmation doesn't match Password")
       }
@@ -74,12 +75,15 @@ function App() {
   }
 
   return (
-    <main className="home">
-      <section className="auth-panel" aria-label="Authentication">
-        <h1>Funny Movies</h1>
+    <main className="app-shell">
+      <header className="app-header">
+        <div className="brand">
+          <span className="brand-mark">FM</span>
+          <h1>Funny Movies</h1>
+        </div>
 
         {user ? (
-          <div className="auth-row">
+          <div className="auth-row" aria-label="User session">
             <span>Welcome {user.email}</span>
             <button type="button" onClick={handleLogout} disabled={isSubmitting}>
               Logout
@@ -119,9 +123,11 @@ function App() {
             </button>
           </form>
         )}
+      </header>
 
-        {message && <p className="message">{message}</p>}
-      </section>
+      {message && <p className="message">{message}</p>}
+
+      <section className="content" aria-label="Shared videos" />
     </main>
   )
 }

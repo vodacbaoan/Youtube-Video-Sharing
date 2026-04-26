@@ -1,33 +1,61 @@
-.home {
-  display: flex;
+.app-shell {
   min-height: 100vh;
+  padding: 28px 36px;
+}
+
+.app-header {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 24px;
+  justify-content: space-between;
+  gap: 24px;
+  border-bottom: 3px solid #222;
+  padding-bottom: 16px;
 }
 
-.auth-panel {
-  width: min(100%, 720px);
+.brand {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 12px;
 }
 
-.auth-panel h1 {
-  margin: 0 0 24px;
+.brand-mark {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 3px solid #111827;
+  border-radius: 6px;
+  color: #111827;
+  font-weight: 800;
+}
+
+.brand h1 {
+  margin: 0;
   font-size: 40px;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .auth-form,
 .auth-row {
   display: flex;
+  flex: 1 1 auto;
   gap: 12px;
   align-items: center;
   flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .auth-form input {
-  min-width: 220px;
+  width: 180px;
   padding: 10px 12px;
   border: 2px solid #222;
   font: inherit;
+}
+
+.auth-form input[type='email'] {
+  width: 230px;
 }
 
 .auth-form button,
@@ -54,6 +82,26 @@
 }
 
 .message {
-  margin-top: 16px;
+  margin: 16px 0 0;
   color: #8a1111;
+}
+
+.content {
+  min-height: 320px;
+}
+
+@media (max-width: 840px) {
+  .app-shell {
+    padding: 20px;
+  }
+
+  .app-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .auth-form,
+  .auth-row {
+    justify-content: flex-start;
+  }
 }
