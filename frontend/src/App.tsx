@@ -1,5 +1,6 @@
 import { type FormEvent, useEffect, useState } from 'react'
 import { getCurrentUser, login, logout, register, type User } from './api/auth'
+import { listVideos, shareVideo, type Video } from './api/videos'
 import './App.css'
 
 function App() {
@@ -7,7 +8,10 @@ function App() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [passwordConfirmation, setPasswordConfirmation] = useState('')
+  const [youtubeUrl, setYoutubeUrl] = useState('')
+  const [videos, setVideos] = useState<Video[]>([])
   const [user, setUser] = useState<User | null>(null)
+  const [showShareForm, setShowShareForm] = useState(false)
   const [message, setMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -20,6 +24,14 @@ function App() {
       })
       .catch(() => undefined)
 
+    listVideos()
+      .then(({ videos }) => {
+        if (isActive) setVideos(videos)
+      })
+      .catch((error) => {
+        if (isActive) setMessage(error instanceof Error ? error.message : 'Could not load videos')
+      })
+
     return () => {
       isActive = false
     }
@@ -31,7 +43,6 @@ function App() {
     setMessage('')
 
     try {
-      // Rails has_secure_password validates password_confirmation on registration.
       if (mode === 'register' && password !== passwordConfirmation) {
         throw new Error("Password confirmation doesn't match Password")
       }
@@ -66,12 +77,38 @@ function App() {
     try {
       await logout()
       setUser(null)
+      setShowShareForm(false)
       setMessage('Logged out')
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Request failed')
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  async function handleShare(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setIsSubmitting(true)
+    setMessage('')
+
+    try {
+      const result = await shareVideo(youtubeUrl)
+      setVideos((currentVideos) => [result.video, ...currentVideos])
+      setYoutubeUrl('')
+      setShowShareForm(false)
+      setMessage(`Shared "${result.video.title}"`)
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Request failed')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  function formatDate(value: string) {
+    return new Intl.DateTimeFormat(undefined, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(new Date(value))
   }
 
   return (
@@ -85,6 +122,13 @@ function App() {
         {user ? (
           <div className="auth-row" aria-label="User session">
             <span>Welcome {user.email}</span>
+            <button
+              type="button"
+              onClick={() => setShowShareForm((isVisible) => !isVisible)}
+              disabled={isSubmitting}
+            >
+              Share a movie
+            </button>
             <button type="button" onClick={handleLogout} disabled={isSubmitting}>
               Logout
             </button>
@@ -127,7 +171,45 @@ function App() {
 
       {message && <p className="message">{message}</p>}
 
-      <section className="content" aria-label="Shared videos" />
+      {user && showShareForm && (
+        <form className="share-form" onSubmit={handleShare}>
+          <label htmlFor="youtube-url">YouTube URL</label>
+          <input
+            id="youtube-url"
+            type="url"
+            placeholder="https://www.youtube.com/watch?v=..."
+            value={youtubeUrl}
+            onChange={(event) => setYoutubeUrl(event.target.value)}
+          />
+          <button type="submit" disabled={isSubmitting}>
+            Share
+          </button>
+        </form>
+      )}
+
+      <section className="content" aria-label="Shared videos">
+        {videos.length === 0 ? (
+          <p className="empty-state">No videos shared yet.</p>
+        ) : (
+          <div className="video-list">
+            {videos.map((video) => (
+              <article className="video-item" key={video.id}>
+                <iframe
+                  src={video.embed_url}
+                  title={video.title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+                <div className="video-info">
+                  <h2>{video.title}</h2>
+                  <p>Shared by: {video.shared_by}</p>
+                  <p>{formatDate(video.created_at)}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
     </main>
   )
 }
