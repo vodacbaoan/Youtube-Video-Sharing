@@ -1,121 +1,128 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import { type FormEvent, useEffect, useState } from 'react'
+import { getCurrentUser, login, logout, register, type User } from './api/auth'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [mode, setMode] = useState<'login' | 'register'>('login')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [passwordConfirmation, setPasswordConfirmation] = useState('')
+  const [user, setUser] = useState<User | null>(null)
+  const [message, setMessage] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  useEffect(() => {
+    let isActive = true
+
+    getCurrentUser()
+      .then(({ user }) => {
+        if (isActive) setUser(user)
+      })
+      .catch(() => undefined)
+
+    return () => {
+      isActive = false
+    }
+  }, [])
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setIsSubmitting(true)
+    setMessage('')
+
+    try {
+      if (mode === 'register' && password !== passwordConfirmation) {
+        throw new Error("Password confirmation doesn't match Password")
+      }
+
+      const result =
+        mode === 'register'
+          ? await register(email, password, passwordConfirmation)
+          : await login(email, password)
+
+      setUser(result.user)
+      setPassword('')
+      setPasswordConfirmation('')
+      setMessage(`Signed in as ${result.user.email}`)
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Request failed')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  function switchMode(nextMode: 'login' | 'register') {
+    setMode(nextMode)
+    setPassword('')
+    setPasswordConfirmation('')
+    setMessage('')
+  }
+
+  async function handleLogout() {
+    setIsSubmitting(true)
+    setMessage('')
+
+    try {
+      await logout()
+      setUser(null)
+      setMessage('Logged out')
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Request failed')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
+    <main className="home">
+      <section className="auth-panel" aria-label="Authentication">
+        <h1>Funny Movies</h1>
+
+        {user ? (
+          <div className="auth-row">
+            <span>Welcome {user.email}</span>
+            <button type="button" onClick={handleLogout} disabled={isSubmitting}>
+              Logout
+            </button>
+          </div>
+        ) : (
+          <form className="auth-form" onSubmit={handleSubmit}>
+            <input
+              type="email"
+              placeholder="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+            />
+            <input
+              type="password"
+              placeholder="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+            />
+            {mode === 'register' && (
+              <input
+                type="password"
+                placeholder="confirm password"
+                value={passwordConfirmation}
+                onChange={(event) => setPasswordConfirmation(event.target.value)}
+              />
+            )}
+            <button type="submit" disabled={isSubmitting}>
+              {mode === 'register' ? 'Register' : 'Login'}
+            </button>
+            <button
+              type="button"
+              onClick={() => switchMode(mode === 'register' ? 'login' : 'register')}
+              disabled={isSubmitting}
+            >
+              {mode === 'register' ? 'Back to login' : 'Register'}
+            </button>
+          </form>
+        )}
+
+        {message && <p className="message">{message}</p>}
       </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+    </main>
   )
 }
 
