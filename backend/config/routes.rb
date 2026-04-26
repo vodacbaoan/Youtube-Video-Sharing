@@ -1,4 +1,10 @@
 Rails.application.routes.draw do
+  namespace :api do
+    post "register", to: "registrations#create"
+    post "login", to: "sessions#create"
+    delete "logout", to: "sessions#destroy"
+    get "me", to: "sessions#show"
+  end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
