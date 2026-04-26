@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_26_033440) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_26_050000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -21,4 +21,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_26_033440) do
     t.datetime "updated_at", null: false
     t.index "lower((email)::text)", name: "index_users_on_lower_email", unique: true
   end
+
+  create_table "videos", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "thumbnail_url"
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.string "youtube_url", null: false
+    t.string "youtube_video_id", null: false
+    t.index ["created_at"], name: "index_videos_on_created_at"
+    t.index ["user_id"], name: "index_videos_on_user_id"
+    t.index ["youtube_video_id"], name: "index_videos_on_youtube_video_id"
+  end
+
+  add_foreign_key "videos", "users"
 end

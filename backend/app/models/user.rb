@@ -1,5 +1,6 @@
 class User < ApplicationRecord
   has_secure_password
+  has_many :videos, dependent: :destroy
 
   before_validation :normalize_email
 
