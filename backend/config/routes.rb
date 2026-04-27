@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  mount ActionCable.server => "/cable"
+
   namespace :api do
     post "register", to: "registrations#create"
     post "login", to: "sessions#create"
