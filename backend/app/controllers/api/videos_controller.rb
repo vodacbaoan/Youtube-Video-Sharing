@@ -13,6 +13,7 @@ module Api
       video = current_user.videos.new(metadata)
 
       if video.save
+        VideoShareNotificationJob.perform_later(video)
         render json: { video: video_json(video) }, status: :created
       else
         render json: { errors: video.errors.full_messages }, status: :unprocessable_entity

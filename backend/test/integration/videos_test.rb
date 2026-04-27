@@ -1,6 +1,8 @@
 require "test_helper"
 
 class VideosTest < ActionDispatch::IntegrationTest
+  include ActiveJob::TestHelper
+
   setup do
     @user = User.create!(email: "person@example.com", password: "password123")
   end
@@ -48,9 +50,11 @@ class VideosTest < ActionDispatch::IntegrationTest
       thumbnail_url: "https://img.youtube.com/test.jpg"
     }
 
-    with_youtube_metadata(metadata) do
-      assert_difference "Video.count", 1 do
-        post "/api/videos", params: { youtube_url: "https://youtu.be/dQw4w9WgXcQ" }, as: :json
+    assert_enqueued_with(job: VideoShareNotificationJob) do
+      with_youtube_metadata(metadata) do
+        assert_difference "Video.count", 1 do
+          post "/api/videos", params: { youtube_url: "https://youtu.be/dQw4w9WgXcQ" }, as: :json
+        end
       end
     end
 
