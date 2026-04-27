@@ -1,7 +1,9 @@
 require "test_helper"
 
 class VideoShareNotificationJobTest < ActiveJob::TestCase
-  test "builds notification payload for shared video" do
+  include ActionCable::TestHelper
+
+  test "broadcasts notification payload for shared video" do
     user = User.create!(email: "person@example.com", password: "password123")
     video = user.videos.create!(
       youtube_url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
@@ -9,7 +11,10 @@ class VideoShareNotificationJobTest < ActiveJob::TestCase
       title: "Test video"
     )
 
-    assert_nothing_raised do
+    assert_broadcast_on "video_shares", {
+      title: "Test video",
+      shared_by: "person@example.com"
+    } do
       VideoShareNotificationJob.perform_now(video)
     end
   end

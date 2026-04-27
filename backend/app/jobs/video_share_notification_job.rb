@@ -2,7 +2,7 @@ class VideoShareNotificationJob < ApplicationJob
   queue_as :default
 
   def perform(video)
-    notification_payload(video)
+    ActionCable.server.broadcast("video_shares", notification_payload(video))
   end
 
   private
