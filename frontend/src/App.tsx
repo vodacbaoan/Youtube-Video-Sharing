@@ -1,7 +1,13 @@
 import { type FormEvent, useEffect, useState } from 'react'
 import { getCurrentUser, login, logout, register, type User } from './api/auth'
+import { cable } from './api/cable'
 import { listVideos, shareVideo, type Video } from './api/videos'
 import './App.css'
+
+type VideoShareNotification = {
+  title: string
+  shared_by: string
+}
 
 function App() {
   const [mode, setMode] = useState<'login' | 'register'>('login')
@@ -13,6 +19,7 @@ function App() {
   const [user, setUser] = useState<User | null>(null)
   const [showShareForm, setShowShareForm] = useState(false)
   const [message, setMessage] = useState('')
+  const [notification, setNotification] = useState<VideoShareNotification | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
@@ -36,6 +43,28 @@ function App() {
       isActive = false
     }
   }, [])
+
+  useEffect(() => {
+    if (!user) return
+
+    const subscription = cable.subscriptions.create<VideoShareNotification>(
+      { channel: 'VideoSharesChannel' },
+      {
+        received(data) {
+          if (data.shared_by === user.email) return
+
+          setNotification(data)
+          void listVideos()
+            .then(({ videos }) => setVideos(videos))
+            .catch(() => undefined)
+        },
+      },
+    )
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [user])
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -78,6 +107,7 @@ function App() {
       await logout()
       setUser(null)
       setShowShareForm(false)
+      setNotification(null)
       setMessage('Logged out')
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Request failed')
@@ -170,6 +200,17 @@ function App() {
       </header>
 
       {message && <p className="message">{message}</p>}
+
+      {notification && (
+        <div className="notification-banner" role="status">
+          <span>
+            {notification.shared_by} shared "{notification.title}"
+          </span>
+          <button type="button" onClick={() => setNotification(null)}>
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {user && showShareForm && (
         <form className="share-form" onSubmit={handleShare}>

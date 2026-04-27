@@ -88,6 +88,28 @@
   color: #8a1111;
 }
 
+.notification-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 16px;
+  border: 2px solid #222;
+  padding: 10px 12px;
+  background: #fff8d6;
+  color: #222;
+}
+
+.notification-banner button {
+  border: 2px solid #222;
+  background: #222;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 6px 10px;
+}
+
 .content {
   padding-top: 28px;
   min-height: 320px;
@@ -158,5 +180,10 @@
   .share-form,
   .video-item {
     grid-template-columns: 1fr;
+  }
+
+  .notification-banner {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
