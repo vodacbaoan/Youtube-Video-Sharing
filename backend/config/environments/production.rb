@@ -43,8 +43,8 @@ Rails.application.configure do
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
 
-  # Replace the default in-process memory cache store with a durable alternative.
-  config.cache_store = :solid_cache_store
+  # Keep caching simple for single-database deployments.
+  config.cache_store = :memory_store
 
   # Run background jobs through Sidekiq in production.
   config.active_job.queue_adapter = :sidekiq
@@ -74,6 +74,8 @@ Rails.application.configure do
 
   # Only use :id for inspections in production.
   config.active_record.attributes_for_inspect = [ :id ]
+
+  config.action_cable.allowed_request_origins = ENV.fetch("FRONTEND_ORIGIN").split(",")
 
   # Enable DNS rebinding protection and other `Host` header attacks.
   # config.hosts = [
