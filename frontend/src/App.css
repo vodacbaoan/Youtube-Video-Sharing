@@ -1,6 +1,9 @@
 .app-shell {
+  width: min(80%, 1280px);
   min-height: 100vh;
-  padding: 28px 36px;
+  margin: 0 auto;
+  padding: 28px 0 40px;
+  box-sizing: border-box;
 }
 
 .app-header {
@@ -100,6 +103,7 @@
 .message {
   margin: 16px 0 0;
   color: #8a1111;
+  text-align: center;
 }
 
 .notification-banner {
@@ -131,14 +135,20 @@
 
 .share-form {
   display: grid;
-  grid-template-columns: auto minmax(280px, 520px) auto;
+  width: min(100%, 860px);
+  grid-template-columns: auto minmax(280px, 1fr) auto;
   gap: 12px;
   align-items: center;
-  margin-top: 24px;
+  margin: 24px auto 0;
+  padding: 20px 24px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  box-sizing: border-box;
 }
 
 .share-form label {
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .share-form input {
@@ -149,13 +159,15 @@
 
 .video-list {
   display: grid;
-  gap: 28px;
+  gap: 40px;
+  justify-items: center;
 }
 
 .video-item {
   display: grid;
   grid-template-columns: minmax(280px, 420px) minmax(240px, 1fr);
   gap: 28px;
+  width: min(100%, 1040px);
   align-items: start;
 }
 
@@ -182,6 +194,7 @@
 
 @media (max-width: 840px) {
   .app-shell {
+    width: 100%;
     padding: 20px;
   }
 
