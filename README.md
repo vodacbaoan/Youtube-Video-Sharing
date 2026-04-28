@@ -76,7 +76,7 @@ Sidekiq worker:
 
 ```bash
 cd backend
-bundle exec sidekiq
+bin/jobs
 ```
 
 Frontend:
@@ -156,6 +156,8 @@ docker run --rm \
   -e POSTGRES_PORT=5432 \
   -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres \
+  -e REDIS_URL=redis://host.docker.internal:6379/0 \
+  -e CABLE_REDIS_URL=redis://host.docker.internal:6379/0 \
   funny-movies-backend
 ```
 
@@ -163,7 +165,7 @@ Note:
 
 - the Dockerfile is production-oriented
 - frontend Docker setup is not included
-- local real-time notifications currently rely on Redis + a separate `bundle exec sidekiq` worker
+- run `bin/jobs` separately for the Sidekiq worker
 - on Linux, `host.docker.internal` may need an alternative host mapping depending on your Docker setup
 
 ## Usage
@@ -178,7 +180,7 @@ Note:
 - `bin/rails db:prepare` fails:
   Check that PostgreSQL is running and that the port matches `5432` or your override.
 - Notifications do not appear:
-  Check that Redis is running and `bundle exec sidekiq` is running.
+  Check that Redis is running and `bin/jobs` is running.
 - Frontend shows `Backend is unreachable`:
   Check that Rails is running on `3000` and `VITE_API_URL` is correct.
 - Frontend shows `Request timed out after 10000ms`:
