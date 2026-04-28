@@ -27,14 +27,16 @@
   width: 44px;
   height: 44px;
   place-items: center;
-  border: 3px solid #111827;
+  border: 2px solid rgba(245, 208, 74, 0.45);
   border-radius: 6px;
-  color: #111827;
+  background: rgba(245, 208, 74, 0.08);
+  color: #f5d04a;
   font-weight: 800;
 }
 
 .brand h1 {
   margin: 0;
+  color: #f5d04a;
   font-size: 40px;
   line-height: 1;
   white-space: nowrap;
@@ -101,9 +103,26 @@
 }
 
 .message {
-  margin: 16px 0 0;
-  color: #8a1111;
+  width: min(100%, 860px);
+  margin: 30px auto 0;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  box-sizing: border-box;
   text-align: center;
+}
+
+.message--error {
+  color: #ff8c82;
+  border-color: rgba(255, 140, 130, 0.35);
+  background: rgba(255, 140, 130, 0.08);
+}
+
+.message--success {
+  color: #8ddfb0;
+  border-color: rgba(141, 223, 176, 0.35);
+  background: rgba(141, 223, 176, 0.08);
 }
 
 .notification-banner {
@@ -169,6 +188,11 @@
   gap: 28px;
   width: min(100%, 1040px);
   align-items: start;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  box-sizing: border-box;
 }
 
 .video-item iframe {
@@ -179,7 +203,7 @@
 
 .video-info h2 {
   margin: 0 0 8px;
-  color: #d31919;
+  color: #ff7a6b;
   font-size: 20px;
 }
 

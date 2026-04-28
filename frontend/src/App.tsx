@@ -9,6 +9,8 @@ type VideoShareNotification = {
   shared_by: string
 }
 
+type MessageTone = 'error' | 'success'
+
 function App() {
   const [mode, setMode] = useState<'login' | 'register'>('login')
   const [email, setEmail] = useState('')
@@ -19,6 +21,7 @@ function App() {
   const [user, setUser] = useState<User | null>(null)
   const [showShareForm, setShowShareForm] = useState(false)
   const [message, setMessage] = useState('')
+  const [messageTone, setMessageTone] = useState<MessageTone>('error')
   const [notification, setNotification] = useState<VideoShareNotification | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -36,7 +39,10 @@ function App() {
         if (isActive) setVideos(videos)
       })
       .catch((error) => {
-        if (isActive) setMessage(error instanceof Error ? error.message : 'Could not load videos')
+        if (isActive) {
+          setMessageTone('error')
+          setMessage(error instanceof Error ? error.message : 'Could not load videos')
+        }
       })
 
     return () => {
@@ -85,6 +91,7 @@ function App() {
       setPassword('')
       setPasswordConfirmation('')
     } catch (error) {
+      setMessageTone('error')
       setMessage(error instanceof Error ? error.message : 'Request failed')
     } finally {
       setIsSubmitting(false)
@@ -108,6 +115,7 @@ function App() {
       setShowShareForm(false)
       setNotification(null)
     } catch (error) {
+      setMessageTone('error')
       setMessage(error instanceof Error ? error.message : 'Request failed')
     } finally {
       setIsSubmitting(false)
@@ -124,8 +132,10 @@ function App() {
       setVideos((currentVideos) => [result.video, ...currentVideos])
       setYoutubeUrl('')
       setShowShareForm(false)
+      setMessageTone('success')
       setMessage(`Shared "${result.video.title}"`)
     } catch (error) {
+      setMessageTone('error')
       setMessage(error instanceof Error ? error.message : 'Request failed')
     } finally {
       setIsSubmitting(false)
@@ -210,7 +220,7 @@ function App() {
         )}
       </header>
 
-      {message && <p className="message">{message}</p>}
+      {message && <p className={`message message--${messageTone}`}>{message}</p>}
 
       {notification && (
         <div className="notification-banner" role="status">
