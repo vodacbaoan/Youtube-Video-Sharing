@@ -25,6 +25,12 @@ vi.mock('./api/cable', () => ({
 }))
 
 describe('App', () => {
+  it('shows the empty state when no videos are returned', async () => {
+    render(<App />)
+
+    expect(await screen.findByText('No videos shared yet.')).toBeInTheDocument()
+  })
+
   it('shows the password confirmation field after switching to register mode', async () => {
     render(<App />)
 
@@ -33,5 +39,25 @@ describe('App', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Register' }))
 
     expect(await screen.findByPlaceholderText('confirm password')).toBeInTheDocument()
+  })
+
+  it('shows a mismatch error when register passwords do not match', async () => {
+    render(<App />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Register' }))
+
+    fireEvent.change(screen.getByPlaceholderText('email'), {
+      target: { value: 'movie@example.com' },
+    })
+    fireEvent.change(screen.getByPlaceholderText('password'), {
+      target: { value: 'password123' },
+    })
+    fireEvent.change(await screen.findByPlaceholderText('confirm password'), {
+      target: { value: 'different-password' },
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Register' }))
+
+    expect(await screen.findByText("Password confirmation doesn't match Password")).toBeInTheDocument()
   })
 })

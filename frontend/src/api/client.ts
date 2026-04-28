@@ -40,11 +40,11 @@ export async function apiRequest<T>(
     return data as T
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {
-      throw new Error(`Request timed out after ${timeoutMs}ms`)
+      throw new Error(`Request timed out after ${timeoutMs}ms`, { cause: error })
     }
 
     if (error instanceof TypeError) {
-      throw new Error('Backend is unreachable')
+      throw new Error('Backend is unreachable', { cause: error })
     }
 
     throw error
