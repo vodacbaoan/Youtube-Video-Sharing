@@ -47,6 +47,20 @@
   justify-content: flex-end;
 }
 
+.auth-form {
+  margin-left: auto;
+}
+
+.auth-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: flex-start;
+  margin-left: auto;
+  min-width: 0;
+}
+
 .auth-form input {
   width: 180px;
   padding: 10px 12px;
@@ -70,7 +84,7 @@
   cursor: pointer;
 }
 
-.auth-form button:last-child,
+.auth-controls button:last-child,
 .auth-row button {
   background: #fff;
   color: #222;
@@ -175,6 +189,10 @@
   .auth-form,
   .auth-row {
     justify-content: flex-start;
+  }
+
+  .auth-controls {
+    margin-left: 0;
   }
 
   .share-form,
