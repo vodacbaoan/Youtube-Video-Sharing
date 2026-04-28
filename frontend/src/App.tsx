@@ -84,7 +84,6 @@ function App() {
       setUser(result.user)
       setPassword('')
       setPasswordConfirmation('')
-      setMessage(`Signed in as ${result.user.email}`)
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Request failed')
     } finally {
@@ -108,7 +107,6 @@ function App() {
       setUser(null)
       setShowShareForm(false)
       setNotification(null)
-      setMessage('Logged out')
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Request failed')
     } finally {
@@ -135,10 +133,21 @@ function App() {
   }
 
   function formatDate(value: string) {
-    return new Intl.DateTimeFormat(undefined, {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-    }).format(new Date(value))
+    const formatter = new Intl.DateTimeFormat('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+      timeZone: 'UTC',
+    })
+
+    const parts = formatter.formatToParts(new Date(value))
+    const getPart = (type: Intl.DateTimeFormatPartTypes) =>
+      parts.find((part) => part.type === type)?.value ?? ''
+
+    return `${getPart('day')}/${getPart('month')}/${getPart('year')} ${getPart('hour')}:${getPart('minute')} ${getPart('dayPeriod').toUpperCase()}`
   }
 
   return (

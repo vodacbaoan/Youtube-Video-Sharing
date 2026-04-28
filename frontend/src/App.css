@@ -171,6 +171,10 @@
   font-size: 20px;
 }
 
+.video-info {
+  text-align: left;
+}
+
 .video-info p,
 .empty-state {
   margin: 0 0 6px;
