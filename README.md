@@ -11,6 +11,7 @@ Funny Movies is a Rails + React app for sharing YouTube videos. Users can regist
 - Node.js `20+`
 - npm
 - PostgreSQL
+- Redis
 
 ## Installation & Configuration
 
@@ -36,6 +37,7 @@ npm install
 Important defaults:
 
 - Backend DB port: `5432`
+- Redis URL: `redis://127.0.0.1:6379/0`
 - Frontend origin: `http://localhost:5173`
 - Frontend API URL default: `http://<current-hostname>:3000`
 
@@ -45,6 +47,8 @@ Useful env vars:
 - `POSTGRES_PORT`
 - `POSTGRES_USER`
 - `POSTGRES_PASSWORD`
+- `REDIS_URL`
+- `CABLE_REDIS_URL`
 - `FRONTEND_ORIGIN`
 - `VITE_API_URL`
 
@@ -68,6 +72,13 @@ bin/rails db:prepare
 bin/rails server
 ```
 
+Sidekiq worker:
+
+```bash
+cd backend
+bundle exec sidekiq
+```
+
 Frontend:
 
 ```bash
@@ -75,17 +86,29 @@ cd frontend
 npm run dev
 ```
 
+Redis:
+
+```bash
+docker run --name funny-movies-redis -p 6379:6379 -d redis:7
+```
+
 Local URLs:
 
 - Frontend: `http://localhost:5173`
 - Backend: `http://localhost:3000`
 - WebSocket: `ws://localhost:3000/cable`
+- Redis: `redis://127.0.0.1:6379/0`
 
 Run tests:
 
 ```bash
 cd backend
 bin/rails test
+```
+
+```bash
+cd frontend
+npm test
 ```
 
 ```bash
@@ -116,6 +139,14 @@ docker run --name youtube-share-postgres \
   -d postgres:16
 ```
 
+Run Redis for the current local notification setup:
+
+```bash
+docker run --name funny-movies-redis \
+  -p 6379:6379 \
+  -d redis:7
+```
+
 Run the backend container:
 
 ```bash
@@ -132,6 +163,7 @@ Note:
 
 - the Dockerfile is production-oriented
 - frontend Docker setup is not included
+- local real-time notifications currently rely on Redis + a separate `bundle exec sidekiq` worker
 - on Linux, `host.docker.internal` may need an alternative host mapping depending on your Docker setup
 
 ## Usage
@@ -145,6 +177,8 @@ Note:
 
 - `bin/rails db:prepare` fails:
   Check that PostgreSQL is running and that the port matches `5432` or your override.
+- Notifications do not appear:
+  Check that Redis is running and `bundle exec sidekiq` is running.
 - Frontend shows `Backend is unreachable`:
   Check that Rails is running on `3000` and `VITE_API_URL` is correct.
 - Frontend shows `Request timed out after 10000ms`:
