@@ -34,9 +34,10 @@ describe('App', () => {
   it('shows the password confirmation field after switching to register mode', async () => {
     render(<App />)
 
+    await screen.findByText('No videos shared yet.')
     expect(screen.queryByPlaceholderText('confirm password')).not.toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Register' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Create account' }))
 
     expect(await screen.findByPlaceholderText('confirm password')).toBeInTheDocument()
   })
@@ -44,7 +45,8 @@ describe('App', () => {
   it('shows a mismatch error when register passwords do not match', async () => {
     render(<App />)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Register' }))
+    await screen.findByText('No videos shared yet.')
+    fireEvent.click(screen.getByRole('button', { name: 'Create account' }))
 
     fireEvent.change(screen.getByPlaceholderText('email'), {
       target: { value: 'movie@example.com' },
