@@ -281,6 +281,10 @@
   margin: 0 0 6px;
 }
 
+.empty-state {
+  text-align: center;
+}
+
 @media (max-width: 840px) {
   .app-shell {
     width: 100%;
