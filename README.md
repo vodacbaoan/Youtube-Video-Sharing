@@ -177,5 +177,7 @@ Notes:
   Stop anything already bound to `3000`, `5173`, `5432`, or `6379`, or change the published ports in `docker-compose.yml`.
 - `docker compose up --build` stalls while starting services:
   Run `docker compose ps` and `docker compose logs backend worker postgres redis` to see which healthcheck is failing.
+- Two tabs appear to switch to the same logged-in user:
+  This app uses cookie-based authentication, so tabs in the same browser profile share the same session. To test notifications between different users, use two different browsers or two separate browser profiles. Incognito/private mode may not reliably preserve the login session, especially when the frontend and backend are on different origins.
 - Some YouTube videos cannot play in the iframe:
   This is a YouTube embedding restriction, not a local app bug.
