@@ -17,8 +17,8 @@ Funny Movies is a Rails + React app for sharing YouTube videos. Users can regist
 ## Installation & Configuration
 
 ```bash
-git clone <repo-url>
-cd youtube_share_project
+git clone https://github.com/vodacbaoan/Youtube-Video-Sharing.git
+cd Youtube-Video-Sharing
 ```
 
 Backend:
@@ -178,6 +178,6 @@ Notes:
 - `docker compose up --build` stalls while starting services:
   Run `docker compose ps` and `docker compose logs backend worker postgres redis` to see which healthcheck is failing.
 - Two tabs appear to switch to the same logged-in user:
-  This app uses cookie-based authentication, so tabs in the same browser profile share the same session. To test notifications between different users, use two different browsers or two separate browser profiles. Incognito/private mode may not reliably preserve the login session, especially when the frontend and backend are on different origins.
+  This app uses cookie-based authentication, so tabs in the same browser profile share the same session. To test notifications between different users, use two different browsers, two separate browser profiles, or two different devices.
 - Some YouTube videos cannot play in the iframe:
-  This is a YouTube embedding restriction, not a local app bug.
+  This is a YouTube embedding restriction.
