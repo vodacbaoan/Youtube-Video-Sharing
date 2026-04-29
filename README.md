@@ -12,6 +12,7 @@ Funny Movies is a Rails + React app for sharing YouTube videos. Users can regist
 - npm
 - PostgreSQL
 - Redis
+- Docker Engine / Docker Desktop with Docker Compose v2 for the containerized setup
 
 ## Installation & Configuration
 
@@ -119,54 +120,41 @@ npm run lint
 
 ## Docker Deployment
 
-A production-oriented Rails Dockerfile exists at `backend/Dockerfile`. A full local Docker Compose setup is not included yet.
+A full local Docker Compose setup is included for PostgreSQL, Redis, Rails, Sidekiq, and the React frontend.
 
-Build the backend image:
-
-```bash
-cd backend
-docker build -t funny-movies-backend .
-```
-
-Run PostgreSQL:
+Start the full stack:
 
 ```bash
-docker run --name youtube-share-postgres \
-  -e POSTGRES_USER=postgres \
-  -e POSTGRES_PASSWORD=postgres \
-  -e POSTGRES_DB=postgres \
-  -p 5432:5432 \
-  -d postgres:16
+docker compose up --build
 ```
 
-Run Redis for the current local notification setup:
+Or run it detached:
 
 ```bash
-docker run --name funny-movies-redis \
-  -p 6379:6379 \
-  -d redis:7
+docker compose up -d --build
 ```
 
-Run the backend container:
+Open the app:
+
+- Frontend: `http://localhost:5173`
+- Backend API: `http://localhost:3000`
+- WebSocket: `ws://localhost:3000/cable`
+
+Useful Docker commands:
 
 ```bash
-docker run --rm \
-  -p 3000:80 \
-  -e POSTGRES_HOST=host.docker.internal \
-  -e POSTGRES_PORT=5432 \
-  -e POSTGRES_USER=postgres \
-  -e POSTGRES_PASSWORD=postgres \
-  -e REDIS_URL=redis://host.docker.internal:6379/0 \
-  -e CABLE_REDIS_URL=redis://host.docker.internal:6379/0 \
-  funny-movies-backend
+docker compose logs -f
+docker compose down
+docker compose down -v
 ```
 
-Note:
+Notes:
 
-- the Dockerfile is production-oriented
-- frontend Docker setup is not included
-- run `bin/jobs` separately for the Sidekiq worker
-- on Linux, `host.docker.internal` may need an alternative host mapping depending on your Docker setup
+- The backend container runs `bin/rails db:prepare` on startup.
+- Compose healthchecks wait for PostgreSQL and Redis to be ready before Rails starts.
+- The Sidekiq worker starts only after the backend is healthy, so notification jobs do not race the initial boot.
+- The frontend image is a production-style static build served by Nginx.
+- `docker compose down -v` removes the PostgreSQL and Redis volumes if you want a clean reset.
 
 ## Usage
 
@@ -185,5 +173,9 @@ Note:
   Check that Rails is running on `3000` and `VITE_API_URL` is correct.
 - Frontend shows `Request timed out after 10000ms`:
   The backend was reachable but too slow to respond.
+- `docker compose up --build` fails because ports are already in use:
+  Stop anything already bound to `3000`, `5173`, `5432`, or `6379`, or change the published ports in `docker-compose.yml`.
+- `docker compose up --build` stalls while starting services:
+  Run `docker compose ps` and `docker compose logs backend worker postgres redis` to see which healthcheck is failing.
 - Some YouTube videos cannot play in the iframe:
   This is a YouTube embedding restriction, not a local app bug.

@@ -56,10 +56,14 @@ class ApplicationController < ActionController::API
   end
 
   def auth_cookie_options
+    secure_cookie = ActiveModel::Type::Boolean.new.cast(
+      ENV.fetch("AUTH_COOKIE_SECURE", Rails.env.production?)
+    )
+
     {
       httponly: true,
-      secure: Rails.env.production?,
-      same_site: Rails.env.production? ? :none : :lax
+      secure: secure_cookie,
+      same_site: secure_cookie ? :none : :lax
     }
   end
 end

@@ -1,0 +1,85 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: funny_movies_production
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d funny_movies_production"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  redis:
+    image: redis:7
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  backend:
+    build:
+      context: ./backend
+    image: funny-movies-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "3000:80"
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/funny_movies_production
+      REDIS_URL: redis://redis:6379/0
+      CABLE_REDIS_URL: redis://redis:6379/0
+      FRONTEND_ORIGIN: http://localhost:5173,http://127.0.0.1:5173
+      SECRET_KEY_BASE: docker-local-secret-key-base-for-funny-movies
+      AUTH_COOKIE_SECURE: "false"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1/up"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  worker:
+    image: funny-movies-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    command: ./bin/jobs
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/funny_movies_production
+      REDIS_URL: redis://redis:6379/0
+      CABLE_REDIS_URL: redis://redis:6379/0
+      FRONTEND_ORIGIN: http://localhost:5173,http://127.0.0.1:5173
+      SECRET_KEY_BASE: docker-local-secret-key-base-for-funny-movies
+      AUTH_COOKIE_SECURE: "false"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://localhost:3000
+    image: funny-movies-frontend
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "5173:80"
+
+volumes:
+  postgres_data:
+  redis_data:
