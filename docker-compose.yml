@@ -28,7 +28,6 @@ services:
   backend:
     build:
       context: ./backend
-    image: funny-movies-backend
     depends_on:
       postgres:
         condition: service_healthy
@@ -51,7 +50,8 @@ services:
       start_period: 20s
 
   worker:
-    image: funny-movies-backend
+    build:
+      context: ./backend
     depends_on:
       postgres:
         condition: service_healthy
@@ -73,7 +73,6 @@ services:
       context: ./frontend
       args:
         VITE_API_URL: http://localhost:3000
-    image: funny-movies-frontend
     depends_on:
       backend:
         condition: service_healthy

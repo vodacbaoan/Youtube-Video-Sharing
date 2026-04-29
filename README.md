@@ -9,10 +9,9 @@ Funny Movies is a Rails + React app for sharing YouTube videos. Users can regist
 - Ruby `3.3.6`
 - Bundler `2.5.22`
 - Node.js `20+`
-- npm bundled with Node.js
-- PostgreSQL
-- Redis
-- Docker Desktop with Docker Compose v2 for the containerized setup
+- npm
+- PostgreSQL and Redis, either installed locally or run with Docker
+- Docker Desktop with Docker Compose v2 for the Docker commands and containerized setup
 
 ## Recommended Environment
 
@@ -29,23 +28,35 @@ git clone https://github.com/vodacbaoan/Youtube-Video-Sharing.git
 cd Youtube-Video-Sharing
 ```
 
-The manual setup below assumes the prerequisite versions of Ruby, Bundler, Node.js, and npm are already installed. On Ubuntu/WSL, avoid `apt install nodejs npm`; it can install Node `18.x`, which causes `npm install` `EBADENGINE` warnings.
-
-Install Node with a version manager such as `nvm`:
+Manual Ruby/Node setup for Ubuntu/WSL:
 
 ```bash
+sudo apt update
+sudo apt install -y autoconf bison build-essential ca-certificates curl git libdb-dev libffi-dev libgdbm-dev libgmp-dev libncurses-dev libpq-dev libreadline-dev libssl-dev libvips libyaml-dev patch pkg-config rustc uuid-dev zlib1g-dev
+
 curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 exec "$SHELL"
 nvm install 20
 nvm use 20
 node --version
 npm --version
+
+git clone https://github.com/rbenv/rbenv.git ~/.rbenv
+git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
+
+echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bashrc
+echo 'eval "$(rbenv init - bash)"' >> ~/.bashrc
+exec "$SHELL"
 ```
 
 Backend:
 
 ```bash
 cd backend
+rbenv install 3.3.6
+rbenv local 3.3.6
+rbenv rehash
+gem install bundler -v 2.5.22
 bundle _2.5.22_ install
 ```
 
@@ -78,7 +89,7 @@ No additional environment variables are required for the default local setup. Ov
 
 ## Database Setup
 
-Start PostgreSQL first. If you do not already have a local PostgreSQL service running, start one with Docker:
+Start PostgreSQL first. If you do not already have a local PostgreSQL service running, start one with Docker. Docker Desktop must be installed, running, and connected to WSL:
 
 ```bash
 docker run --name funny-movies-postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres:16
@@ -100,7 +111,7 @@ No seed data is required.
 
 ## Running the Application
 
-Start Redis first. If you do not already have a local Redis service running, start one with Docker:
+Start Redis first. If you do not already have a local Redis service running, start one with Docker. Docker Desktop must be installed, running, and connected to WSL:
 
 ```bash
 docker run --name funny-movies-redis -p 6379:6379 -d redis:7
@@ -163,6 +174,12 @@ npm run lint
 
 A full local Docker Compose setup is included for PostgreSQL, Redis, Rails, Sidekiq, and the React frontend.
 
+Check Docker access first:
+
+```bash
+docker ps
+```
+
 Start the full stack:
 
 ```bash
@@ -216,6 +233,8 @@ Notes:
   Check that Rails is running on `3000` and `VITE_API_URL` is correct.
 - Frontend shows `Request timed out after 10000ms`:
   The backend was reachable but too slow to respond.
+- `docker ps` or `docker compose up --build` fails with `/var/run/docker.sock` permission denied:
+  Start Docker Desktop and enable WSL integration for your Ubuntu distro. If using Docker Engine inside Linux, run `sudo usermod -aG docker $USER`, then close and reopen the shell or run `newgrp docker`.
 - `docker compose up --build` fails because ports are already in use:
   Stop anything already bound to `3000`, `5173`, `5432`, or `6379`, or change the published ports in `docker-compose.yml`.
 - `docker compose up --build` stalls while starting services:
