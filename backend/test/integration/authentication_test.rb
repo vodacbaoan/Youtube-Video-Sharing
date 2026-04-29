@@ -47,6 +47,18 @@ class AuthenticationTest < ActionDispatch::IntegrationTest
     assert cookies["youtube_share_auth"].present?
   end
 
+  test "login trims and normalizes email before authentication" do
+    User.create!(email: "person@example.com", password: "password123")
+
+    post "/api/login",
+      params: { email: "  PERSON@example.com  ", password: "password123" },
+      as: :json
+
+    assert_response :success
+    assert_equal "person@example.com", response.parsed_body.dig("user", "email")
+    assert cookies["youtube_share_auth"].present?
+  end
+
   test "login rejects invalid credentials" do
     User.create!(email: "person@example.com", password: "password123")
 

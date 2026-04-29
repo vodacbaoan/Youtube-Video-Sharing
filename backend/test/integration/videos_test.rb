@@ -70,8 +70,10 @@ class VideosTest < ActionDispatch::IntegrationTest
     login
 
     with_youtube_metadata(->(_url) { raise YoutubeMetadata::Error, "Invalid YouTube URL" }) do
-      assert_no_difference "Video.count" do
-        post "/api/videos", params: { youtube_url: "https://example.com" }, as: :json
+      assert_no_enqueued_jobs do
+        assert_no_difference "Video.count" do
+          post "/api/videos", params: { youtube_url: "https://example.com" }, as: :json
+        end
       end
     end
 
