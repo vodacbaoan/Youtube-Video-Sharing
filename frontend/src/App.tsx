@@ -72,6 +72,18 @@ function App() {
     }
   }, [user])
 
+  useEffect(() => {
+    if (!message || messageTone !== 'success') return
+
+    const timeoutId = window.setTimeout(() => {
+      setMessage('')
+    }, 3500)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [message, messageTone])
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setIsSubmitting(true)
