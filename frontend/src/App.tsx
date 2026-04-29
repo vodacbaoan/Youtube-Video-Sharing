@@ -164,7 +164,9 @@ function App() {
     <main className="app-shell">
       <header className="app-header">
         <div className="brand">
-          <span className="brand-mark">FM</span>
+          <span className="brand-mark" aria-hidden="true">
+            <img src="/favicon.png" alt="" />
+          </span>
           <h1>Funny Movies</h1>
         </div>
 
