@@ -150,7 +150,7 @@ function App() {
       hour: '2-digit',
       minute: '2-digit',
       hour12: true,
-      timeZone: 'UTC',
+      timeZone: 'Asia/Ho_Chi_Minh',
     })
 
     const parts = formatter.formatToParts(new Date(value))
@@ -271,7 +271,7 @@ function App() {
                 <div className="video-info">
                   <h2>{video.title}</h2>
                   <p>Shared by: {video.shared_by}</p>
-                  <p>{formatDate(video.created_at)}</p>
+                  <p>At: {formatDate(video.created_at)}</p>
                 </div>
               </article>
             ))}
