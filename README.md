@@ -57,6 +57,7 @@ rbenv install 3.3.6
 rbenv local 3.3.6
 rbenv rehash
 gem install bundler -v 2.5.22
+rm -rf tmp/cache/bootsnap*
 bundle _2.5.22_ install
 ```
 
