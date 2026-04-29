@@ -118,6 +118,10 @@
     color 0.18s ease;
 }
 
+.auth-row button {
+  min-width: 180px;
+}
+
 .auth-form button,
 .auth-row button {
   background: #fff;
@@ -264,7 +268,7 @@
 
 .video-info h2 {
   margin: 0 0 8px;
-  color: #ff9f43;
+  color: var(--accent);
   font-size: 20px;
 }
 
