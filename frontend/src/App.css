@@ -1,5 +1,5 @@
 .app-shell {
-  width: min(80%, 1280px);
+  width: min(80%, 1120px);
   min-height: 100vh;
   margin: 0 auto;
   padding: 28px 0 40px;
@@ -235,17 +235,17 @@
 
 .video-list {
   display: grid;
-  gap: 40px;
+  gap: 32px;
   justify-items: center;
 }
 
 .video-item {
   display: grid;
-  grid-template-columns: minmax(280px, 420px) minmax(240px, 1fr);
-  gap: 28px;
-  width: min(100%, 1040px);
+  grid-template-columns: minmax(260px, 360px) minmax(240px, 1fr);
+  gap: 24px;
+  width: min(100%, 860px);
   align-items: start;
-  padding: 24px;
+  padding: 20px;
   border: 1px solid var(--border);
   border-radius: 14px;
   background: linear-gradient(180deg, rgba(37, 41, 58, 0.88), rgba(29, 32, 47, 0.94));
