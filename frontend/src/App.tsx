@@ -184,37 +184,48 @@ function App() {
           </div>
         ) : (
           <form className="auth-form" onSubmit={handleSubmit}>
-            <div className="auth-controls">
+            <div className={`auth-controls ${mode === 'register' ? 'auth-controls--register' : ''}`}>
               <input
                 type="email"
                 placeholder="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
               />
-              <input
-                type="password"
-                placeholder="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-              />
-              {mode === 'register' && (
+              {mode === 'register' ? (
+                <div className="auth-passwords">
+                  <input
+                    type="password"
+                    placeholder="password"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                  />
+                  <input
+                    type="password"
+                    placeholder="confirm password"
+                    value={passwordConfirmation}
+                    onChange={(event) => setPasswordConfirmation(event.target.value)}
+                  />
+                </div>
+              ) : (
                 <input
                   type="password"
-                  placeholder="confirm password"
-                  value={passwordConfirmation}
-                  onChange={(event) => setPasswordConfirmation(event.target.value)}
+                  placeholder="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
                 />
               )}
-              <button type="submit" disabled={isSubmitting}>
-                {mode === 'register' ? 'Register' : 'Login'}
-              </button>
-              <button
-                type="button"
-                onClick={() => switchMode(mode === 'register' ? 'login' : 'register')}
-                disabled={isSubmitting}
-              >
-                {mode === 'register' ? 'Back to login' : 'Register'}
-              </button>
+              <div className="auth-actions">
+                <button type="submit" disabled={isSubmitting}>
+                  {mode === 'register' ? 'Register' : 'Login'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => switchMode(mode === 'register' ? 'login' : 'register')}
+                  disabled={isSubmitting}
+                >
+                  {mode === 'register' ? 'Back to login' : 'Register'}
+                </button>
+              </div>
             </div>
           </form>
         )}

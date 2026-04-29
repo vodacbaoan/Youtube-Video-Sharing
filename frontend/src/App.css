@@ -60,10 +60,30 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  align-items: center;
+  align-items: flex-start;
   justify-content: flex-start;
   margin-left: auto;
   min-width: 0;
+}
+
+.auth-passwords {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth-passwords input {
+  width: 180px;
+}
+
+.auth-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.auth-controls--register .auth-actions {
+  flex-direction: column;
+  align-items: flex-end;
 }
 
 .auth-form input {
@@ -82,15 +102,18 @@
 .share-form button {
   padding: 10px 16px;
   border: 2px solid #222;
-  background: #222;
-  color: #fff;
   font: inherit;
   font-weight: 700;
   cursor: pointer;
 }
 
-.auth-controls button:last-child,
+.auth-form button,
 .auth-row button {
+  background: #fff;
+  color: #222;
+}
+
+.share-form button {
   background: #fff;
   color: #222;
 }
