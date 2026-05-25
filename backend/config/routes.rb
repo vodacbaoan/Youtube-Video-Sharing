@@ -6,6 +6,7 @@ Rails.application.routes.draw do
     post "login", to: "sessions#create"
     delete "logout", to: "sessions#destroy"
     get "me", to: "sessions#show"
+    resources :collections, only: :index
     resources :videos, only: %i[index create]
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

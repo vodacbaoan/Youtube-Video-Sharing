@@ -10,9 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_26_050000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_18_085049) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "collections", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id", "created_at"], name: "index_collections_on_user_id_and_created_at"
+  end
 
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -20,6 +28,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_26_050000) do
     t.string "password_digest", null: false
     t.datetime "updated_at", null: false
     t.index "lower((email)::text)", name: "index_users_on_lower_email", unique: true
+  end
+
+  create_table "video_collections", force: :cascade do |t|
+    t.bigint "collection_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "video_id", null: false
+    t.index ["collection_id", "video_id"], name: "index_video_collections_on_collection_id_and_video_id", unique: true
+    t.index ["video_id"], name: "index_video_collections_on_video_id"
   end
 
   create_table "videos", force: :cascade do |t|
@@ -35,5 +52,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_26_050000) do
     t.index ["youtube_video_id"], name: "index_videos_on_youtube_video_id"
   end
 
+  add_foreign_key "collections", "users"
+  add_foreign_key "video_collections", "collections"
+  add_foreign_key "video_collections", "videos"
   add_foreign_key "videos", "users"
 end
