@@ -4,6 +4,8 @@ class ApplicationController < ActionController::API
   AUTH_COOKIE_NAME = :youtube_share_auth
   AUTH_TOKEN_EXPIRY = 7.days
 
+  rescue_from ActiveRecord::RecordNotFound, with: :render_not_found
+
   private
 
   def current_user
@@ -17,6 +19,10 @@ class ApplicationController < ActionController::API
     return if current_user
 
     render json: { error: "Unauthorized" }, status: :unauthorized
+  end
+
+  def render_not_found
+    render json: { error: "Not found" }, status: :not_found
   end
 
   def set_auth_cookie(user)

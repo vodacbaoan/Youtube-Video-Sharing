@@ -11,7 +11,50 @@ module Api
       render json: { collections: collections.map { |collection| collection_json(collection) } }
     end
 
+    def create
+      collection = current_user.collections.new(collection_params)
+
+      if collection.save
+        render json: { collection: collection_json(collection) }, status: :created
+      else
+        render json: { errors: collection.errors.full_messages }, status: :unprocessable_entity
+      end
+    end
+
+    def add_video
+      collection = current_user.collections.find(params[:id])
+      video = Video.find(params[:video_id])
+      item = collection.video_collections.find_or_initialize_by(video: video)
+
+      if item.persisted?
+        render json: { collection: collection_json(collection_with_videos(collection)) }
+      elsif item.save
+        render json: { collection: collection_json(collection_with_videos(collection)) }, status: :created
+      else
+        render json: { errors: item.errors.full_messages }, status: :unprocessable_entity
+      end
+    end
+
+    def remove_video
+      collection = current_user.collections.find(params[:id])
+      item = collection.video_collections.find_by!(video_id: params[:video_id])
+
+      item.destroy
+      head :no_content
+    end
+
     private
+
+    def collection_params
+      params.permit(:title)
+    end
+
+    def collection_with_videos(collection)
+      current_user
+        .collections
+        .includes(video_collections: { video: :user })
+        .find(collection.id)
+    end
 
     def collection_json(collection)
       {
