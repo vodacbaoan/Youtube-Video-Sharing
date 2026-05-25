@@ -1,6 +1,13 @@
 import { type FormEvent, useEffect, useState } from 'react'
 import { getCurrentUser, login, logout, register, type User } from './api/auth'
 import { cable } from './api/cable'
+import {
+  addVideoToCollection,
+  createCollection,
+  listCollections,
+  removeVideoFromCollection,
+  type Collection,
+} from './api/collections'
 import { listVideos, shareVideo, type Video } from './api/videos'
 import './App.css'
 
@@ -17,7 +24,10 @@ function App() {
   const [password, setPassword] = useState('')
   const [passwordConfirmation, setPasswordConfirmation] = useState('')
   const [youtubeUrl, setYoutubeUrl] = useState('')
+  const [collectionTitle, setCollectionTitle] = useState('')
+  const [selectedCollectionId, setSelectedCollectionId] = useState('')
   const [videos, setVideos] = useState<Video[]>([])
+  const [collections, setCollections] = useState<Collection[]>([])
   const [user, setUser] = useState<User | null>(null)
   const [showShareForm, setShowShareForm] = useState(false)
   const [message, setMessage] = useState('')
@@ -69,6 +79,30 @@ function App() {
 
     return () => {
       subscription.unsubscribe()
+    }
+  }, [user])
+
+  useEffect(() => {
+    if (!user) return
+
+    let isActive = true
+
+    listCollections()
+      .then(({ collections }) => {
+        if (!isActive) return
+
+        setCollections(collections)
+        setSelectedCollectionId(collections[0]?.id.toString() ?? '')
+      })
+      .catch((error) => {
+        if (isActive) {
+          setMessageTone('error')
+          setMessage(error instanceof Error ? error.message : 'Could not load collections')
+        }
+      })
+
+    return () => {
+      isActive = false
     }
   }, [user])
 
@@ -126,6 +160,8 @@ function App() {
       setUser(null)
       setShowShareForm(false)
       setNotification(null)
+      setCollections([])
+      setSelectedCollectionId('')
     } catch (error) {
       setMessageTone('error')
       setMessage(error instanceof Error ? error.message : 'Request failed')
@@ -146,6 +182,73 @@ function App() {
       setShowShareForm(false)
       setMessageTone('success')
       setMessage(`Shared "${result.video.title}"`)
+    } catch (error) {
+      setMessageTone('error')
+      setMessage(error instanceof Error ? error.message : 'Request failed')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  async function handleCreateCollection(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setIsSubmitting(true)
+    setMessage('')
+
+    try {
+      const result = await createCollection(collectionTitle.trim())
+      setCollections((currentCollections) => [result.collection, ...currentCollections])
+      setCollectionTitle('')
+      setSelectedCollectionId(result.collection.id.toString())
+      setMessageTone('success')
+      setMessage(`Created "${result.collection.title}"`)
+    } catch (error) {
+      setMessageTone('error')
+      setMessage(error instanceof Error ? error.message : 'Request failed')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  async function handleAddVideoToCollection(videoId: number) {
+    if (!selectedCollectionId) return
+
+    setIsSubmitting(true)
+    setMessage('')
+
+    try {
+      const result = await addVideoToCollection(Number(selectedCollectionId), videoId)
+      setCollections((currentCollections) =>
+        currentCollections.map((collection) =>
+          collection.id === result.collection.id ? result.collection : collection,
+        ),
+      )
+      setMessageTone('success')
+      setMessage(`Added to "${result.collection.title}"`)
+    } catch (error) {
+      setMessageTone('error')
+      setMessage(error instanceof Error ? error.message : 'Request failed')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  async function handleRemoveVideoFromCollection(collectionId: number, videoId: number) {
+    setIsSubmitting(true)
+    setMessage('')
+
+    try {
+      await removeVideoFromCollection(collectionId, videoId)
+      setCollections((currentCollections) =>
+        currentCollections.map((collection) =>
+          collection.id === collectionId
+            ? {
+                ...collection,
+                videos: collection.videos.filter((video) => video.id !== videoId),
+              }
+            : collection,
+        ),
+      )
     } catch (error) {
       setMessageTone('error')
       setMessage(error instanceof Error ? error.message : 'Request failed')
@@ -267,6 +370,47 @@ function App() {
         </form>
       )}
 
+      {user && (
+        <section className="collections-panel" aria-label="Collections">
+          <form className="collection-form" onSubmit={handleCreateCollection}>
+            <label htmlFor="collection-title">Collection</label>
+            <input
+              id="collection-title"
+              type="text"
+              placeholder="Favorites"
+              value={collectionTitle}
+              onChange={(event) => setCollectionTitle(event.target.value)}
+            />
+            <button type="submit" disabled={isSubmitting || collectionTitle.trim() === ''}>
+              Create
+            </button>
+          </form>
+
+          {collections.length > 0 && (
+            <div className="collections-list">
+              {collections.map((collection) => (
+                <div className="collection-item" key={collection.id}>
+                  <h2>{collection.title}</h2>
+                  <p>{collection.videos.length} videos</p>
+                  {collection.videos.map((video) => (
+                    <div className="collection-video" key={video.id}>
+                      <span>{video.title}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveVideoFromCollection(collection.id, video.id)}
+                        disabled={isSubmitting}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+
       <section className="content" aria-label="Shared videos">
         {videos.length === 0 ? (
           <p className="empty-state">No videos shared yet.</p>
@@ -284,6 +428,32 @@ function App() {
                   <h2>{video.title}</h2>
                   <p>Shared by: {video.shared_by}</p>
                   <p>At: {formatDate(video.created_at)}</p>
+                  {user && (
+                    <div className="add-to-collection">
+                      <select
+                        value={selectedCollectionId}
+                        onChange={(event) => setSelectedCollectionId(event.target.value)}
+                        disabled={collections.length === 0 || isSubmitting}
+                      >
+                        {collections.length === 0 ? (
+                          <option value="">No collections</option>
+                        ) : (
+                          collections.map((collection) => (
+                            <option key={collection.id} value={collection.id}>
+                              {collection.title}
+                            </option>
+                          ))
+                        )}
+                      </select>
+                      <button
+                        type="button"
+                        onClick={() => handleAddVideoToCollection(video.id)}
+                        disabled={collections.length === 0 || isSubmitting}
+                      >
+                        Add
+                      </button>
+                    </div>
+                  )}
                 </div>
               </article>
             ))}

@@ -105,7 +105,10 @@
 
 .auth-form button,
 .auth-row button,
-.share-form button {
+.share-form button,
+.collection-form button,
+.collection-video button,
+.add-to-collection button {
   padding: 10px 16px;
   border: 2px solid #222;
   font: inherit;
@@ -123,7 +126,10 @@
 }
 
 .auth-form button,
-.auth-row button {
+.auth-row button,
+.collection-form button,
+.collection-video button,
+.add-to-collection button {
   background: #fff;
   color: #222;
 }
@@ -135,7 +141,10 @@
 
 .auth-form button:disabled,
 .auth-row button:disabled,
-.share-form button:disabled {
+.share-form button:disabled,
+.collection-form button:disabled,
+.collection-video button:disabled,
+.add-to-collection button:disabled {
   cursor: not-allowed;
   opacity: 0.65;
 }
@@ -143,9 +152,15 @@
 .auth-form button:hover:not(:disabled),
 .auth-row button:hover:not(:disabled),
 .share-form button:hover:not(:disabled),
+.collection-form button:hover:not(:disabled),
+.collection-video button:hover:not(:disabled),
+.add-to-collection button:hover:not(:disabled),
 .auth-form button:focus-visible,
 .auth-row button:focus-visible,
-.share-form button:focus-visible {
+.share-form button:focus-visible,
+.collection-form button:focus-visible,
+.collection-video button:focus-visible,
+.add-to-collection button:focus-visible {
   border-color: #22d3ee;
   box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.18);
   outline: none;
@@ -233,6 +248,67 @@
   font: inherit;
 }
 
+.collections-panel {
+  width: min(100%, 860px);
+  margin: 24px auto 0;
+}
+
+.collection-form {
+  display: grid;
+  grid-template-columns: auto minmax(220px, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.collection-form input,
+.add-to-collection select {
+  padding: 10px 12px;
+  border: 2px solid #222;
+  font: inherit;
+}
+
+.collections-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.collection-item {
+  border: 1px solid var(--border);
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.collection-item h2 {
+  margin: 0 0 4px;
+  color: var(--accent);
+  font-size: 18px;
+}
+
+.collection-item p {
+  margin: 0 0 8px;
+}
+
+.collection-video,
+.add-to-collection {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.collection-video {
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.collection-video span {
+  min-width: 0;
+}
+
+.add-to-collection {
+  margin-top: 12px;
+}
+
 .video-list {
   display: grid;
   gap: 32px;
@@ -306,6 +382,7 @@
   }
 
   .share-form,
+  .collection-form,
   .video-item {
     grid-template-columns: 1fr;
   }
